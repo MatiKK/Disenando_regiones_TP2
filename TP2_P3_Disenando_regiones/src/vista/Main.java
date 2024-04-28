@@ -1,7 +1,7 @@
 package vista;
 
 import controlador.Controlador;
-import logica.CoordenadasCapitalesArgentina;
+import logica.CoordenadasProvinciasArgentina;
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
 
@@ -17,7 +17,7 @@ public class Main extends JFrame {
     private JMapViewer mapViewer;
 
     public Main() {
-        controlador = new Controlador(this, new CoordenadasCapitalesArgentina());
+        controlador = new Controlador(this, new CoordenadasProvinciasArgentina());
         initializeUI();
     }
 
@@ -35,8 +35,9 @@ public class Main extends JFrame {
         mapViewer = new JMapViewer();
         mapViewer.setZoom(5);
         mapViewer.setTileSource(new org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource.Mapnik());
-        mapViewer.setDisplayPosition(new Coordinate(-34.6037, -58.3816), 10); // Posición inicial (Buenos Aires)
-
+        mapViewer.setDisplayPosition(new Coordinate(-40.6037, -65.3816), 4);
+//        mapViewer.setDisplayPosition(new Coordinate(-34.6037, -58.3816), 10); // Posición inicial (Buenos Aires)
+		
         mapPanel.add(mapViewer, BorderLayout.CENTER);
         buttonPanel.add(showGraphButton);
         buttonPanel.add(exitButton);
