@@ -1,7 +1,6 @@
 package vista;
 
 import controlador.Controlador;
-import logica.CoordenadasProvinciasArgentina;
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
 
@@ -17,7 +16,7 @@ public class Main extends JFrame {
     private JMapViewer mapViewer;
 
     public Main() {
-        controlador = new Controlador(this, new CoordenadasProvinciasArgentina());
+        controlador = new Controlador(this);
         initializeUI();
     }
 
