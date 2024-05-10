@@ -43,9 +43,9 @@ public class Grafo<T extends Comparable<T>>{
 
 			for (Arista<T> a: aristasDelVertice) {
 				if (a.equals(arista)) {
-					continue loop;
-//					System.out.println(a + " " + arista);
-//					throw new IllegalArgumentException("Arista repetida");
+//					continue loop;
+					System.out.println(a + " " + arista);
+					throw new IllegalArgumentException("Arista repetida");
 				}
 			}
 
@@ -85,6 +85,22 @@ public class Grafo<T extends Comparable<T>>{
 	private void chequearQueSeanDistintosVertices(T v1, T v2) {
 		if (v1.equals(v2)) throw new IllegalArgumentException
 		("Invalidado crear arista entre un mismo vértice");
+	}
+
+	public boolean existeAristaEntreVertices(T v1, T v2) {
+		for (Arista<T> arista: adjList.get(v1)) {
+			if (arista.obtenerVerticeDestino().equals(v2))
+				return true;
+		}
+		return false;
+	}
+
+	public double pesoDeLaAristaEntreVertices(T v1, T v2) {
+		for (Arista<T> arista: adjList.get(v1)) {
+			if (arista.obtenerVerticeDestino().equals(v2))
+				return arista.obtenerPeso();
+		}
+		throw new IllegalArgumentException("No existe arista entre dichos vertices");
 	}
 
 	public void agregarVertice(T n) {
@@ -141,14 +157,6 @@ public class Grafo<T extends Comparable<T>>{
 			}
 			System.out.println();
 		}
-//		for (int vertice: adjList.keySet()) {
-//			System.out.print((char)(vertice + 65)+ " es vecino de: ");
-//			TreeSet<Arista> aristas = adjList.get(vertice);
-//			for (Arista a: aristas) {
-//				System.out.print(((char) (a.obtenerVerticeDestino() + 65))+", ");
-//			}
-//			System.out.println();
-//		}
 	}
 	
 	public boolean esConexo() {
