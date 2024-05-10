@@ -2,57 +2,56 @@ package grafosLogica;
 
 import java.util.*;
 
-public class Grafo {
+@SuppressWarnings("unchecked")
+public class Grafo<T extends Comparable<T>>{
 
-	private TreeMap<Integer, TreeSet<Arista>> adjList;
+	private TreeMap<T, TreeSet<Arista<T>>> adjList;
 
 	public Grafo() {
-		this(0);
-	}
-
-	public Grafo(int n) {
 		crearMapa();
-		for (int i = 0; i < n; i++)
-			agregarVerticeIgnorarChequeo(i);
 	}
 
-	public Grafo(Collection<Integer> vertices) {
-		this(vertices, null);
+	public Grafo(T... vertices) {
+		this(Arrays.asList(vertices));
 	}
 
-	@SuppressWarnings("unused")
-	public Grafo(Collection<Integer> vertices, Collection<Arista> aristas) {
+	public Grafo(Collection<T> vertices) {
+		this();
+		agregarVertices(vertices);
+	}
 
-		crearMapa();
+	public Grafo(Collection<T> vertices, Collection<Arista<T>> aristas) {
+
+		this();
 
 		if (vertices.isEmpty() && !aristas.isEmpty())
 			throw new IllegalArgumentException("Inconsistencia: sin vertices y con aristas");
 
-		for (int vertice: vertices)
+		for (T vertice: vertices)
 			agregarVerticeIgnorarChequeo(vertice);
 
 		if (aristas == null) return; // Grafo sin aristas
 
 		loop:
-		for (Arista arista: aristas) {
+		for (Arista<T> arista: aristas) {
 
-			int vertInicio = arista.obtenerVerticeInicio();
-			int vertDestino = arista.obtenerVerticeDestino();
+			T vertInicio = arista.obtenerVerticeInicio();
+			T vertDestino = arista.obtenerVerticeDestino();
 			chequearQueSeanDistintosVertices(vertInicio, vertDestino);
 
-			TreeSet<Arista> aristasDelVertice = adjList.get(vertInicio);
+			TreeSet<Arista<T>> aristasDelVertice = adjList.get(vertInicio);
 
-			for (Arista a: aristasDelVertice) {
+			for (Arista<T> a: aristasDelVertice) {
 				if (a.equals(arista)) {
-//					continue loop;
-					System.out.println(a + " == " + arista);
-					throw new IllegalArgumentException("Arista repetida");
+					continue loop;
+//					System.out.println(a + " " + arista);
+//					throw new IllegalArgumentException("Arista repetida");
 				}
 			}
 
 			aristasDelVertice.add(arista);
 
-			Arista aristaAux = new Arista(vertDestino, vertInicio, arista.obtenerPeso());
+			Arista<T> aristaAux = new Arista<>(vertDestino, vertInicio, arista.obtenerPeso());
 			aristasDelVertice = adjList.get(vertDestino);
 			aristasDelVertice.add(aristaAux);
 		}
@@ -62,7 +61,7 @@ public class Grafo {
 		adjList = new TreeMap<>();
 	}
 
-	protected Map<Integer, TreeSet<Arista>> listaDeAdyacencias() {
+	protected TreeMap<T, TreeSet<Arista<T>>> listaDeAdyacencias() {
 		return adjList;
 	}
 
@@ -70,12 +69,12 @@ public class Grafo {
 		return adjList.size();
 	}
 
-	private void chequearValidezVertice(int v) {
+	private void chequearValidezVertice(T v) {
 		if (!adjList.containsKey(v))
 			throw new IllegalArgumentException("Vértice no existente");
 	}
 
-	private void chequearValidezPosibleArista(int v1, int v2, double p) {
+	private void chequearValidezPosibleArista(T v1, T v2, double p) {
 		if (p < 0)
 			throw new IllegalArgumentException("peso negativo no válido");
 		chequearValidezVertice(v1);
@@ -83,47 +82,61 @@ public class Grafo {
 		chequearQueSeanDistintosVertices(v1, v2);
 	}
 
-	private void chequearQueSeanDistintosVertices(int v1, int v2) {
-		if (v1 == v2) throw new IllegalArgumentException
+	private void chequearQueSeanDistintosVertices(T v1, T v2) {
+		if (v1.equals(v2)) throw new IllegalArgumentException
 		("Invalidado crear arista entre un mismo vértice");
 	}
 
-	public void agregarVertice(int n) {
+	public void agregarVertice(T n) {
 		chequearValidezVertice(n);
 		if (!adjList.containsKey(n)) {
 			agregarVerticeIgnorarChequeo(n);
 		}
 	}
 
-	private void agregarVerticeIgnorarChequeo(int v) {
+	public void agregarVertices(Collection<T> vertices) {
+		if (tamanio() != 0) {
+			for (T vertice: vertices)
+				agregarVertice(vertice);
+		} else {
+			for (T vertice: vertices)
+				agregarVerticeIgnorarChequeo(vertice);
+		}
+	}
+
+	public void agregarVertices(T... vertices) {
+		agregarVertices(Arrays.asList(vertices));
+	}
+
+	private void agregarVerticeIgnorarChequeo(T v) {
 		adjList.put(v, new TreeSet<>(Arista.aristaComparator()));
 	}
 	
-	public void agregarAristaEntreVertices(int v1, int v2, double p) {
+	public void agregarAristaEntreVertices(T v1, T v2, double p) {
 		chequearValidezPosibleArista(v1,v2,p);
-		adjList.get(v1).add(new Arista(v1,v2,p));
-		adjList.get(v2).add(new Arista(v2,v1,p));
+		adjList.get(v1).add(new Arista<>(v1,v2,p));
+		adjList.get(v2).add(new Arista<>(v2,v1,p));
 	}
 
-	public Set<Integer> vecinosDeVertice(int v) {
-		Set<Integer> vecinos = new HashSet<>();
+	public Set<T> vecinosDeVertice(T v) {
+		Set<T> vecinos = new HashSet<>();
 		
-		for (Arista arista: adjList.get(v))
+		for (Arista<T> arista: adjList.get(v))
 			vecinos.add(arista.obtenerVerticeDestino());
 		
 		return vecinos;
 	}
 
-	protected int primerVertice() {
+	protected T primerVertice() {
 		return adjList.firstKey();
 	}
 
 	// para testear bfs
 	public void printData() {
-		for (int vertice: adjList.keySet()) {
+		for (T vertice: adjList.keySet()) {
 			System.out.print(vertice + " es vecino de: ");
-			TreeSet<Arista> aristas = adjList.get(vertice);
-			for (Arista a: aristas) {
+			TreeSet<Arista<T>> aristas = adjList.get(vertice);
+			for (Arista<T> a: aristas) {
 				System.out.print(a.obtenerVerticeDestino()+", ");
 			}
 			System.out.println();
@@ -142,7 +155,7 @@ public class Grafo {
 		return BFS.esConexo(this);
 	}
 
-	public Grafo obtenerAGM() {
+	public Grafo<T> obtenerAGM() {
 		return AGM.AGMdelGrafo(this);
 	}
 

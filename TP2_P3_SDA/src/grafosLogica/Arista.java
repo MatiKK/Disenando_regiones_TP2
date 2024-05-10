@@ -1,24 +1,25 @@
 package grafosLogica;
 
 import java.util.Comparator;
+import java.util.Objects;
 
-public class Arista {
+public class Arista<T extends Comparable<T>> {
 
-	private int verticeInicio;
-	private int verticeDestino;
+	private T verticeInicio;
+	private T verticeDestino;
 	private double peso;
 
-	public Arista(int verticeInicio, int verticeDestino, double peso) {
+	public Arista(T verticeInicio, T verticeDestino, double peso) {
 		this.verticeInicio = verticeInicio;
 		this.verticeDestino = verticeDestino;
 		this.peso = peso;
 	}
 
-	public int obtenerVerticeInicio() {
+	public T obtenerVerticeInicio() {
 		return verticeInicio;
 	}
 
-	public int obtenerVerticeDestino() {
+	public T obtenerVerticeDestino() {
 		return verticeDestino;
 	}
 
@@ -29,7 +30,7 @@ public class Arista {
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof Arista) {
-			Arista a = (Arista) o;
+			Arista<?> a = (Arista<?>) o;
 //			return sonSimilares(a);
 			return sonIguales(a);
 		}
@@ -39,37 +40,37 @@ public class Arista {
 
 	@Override
 	public int hashCode() {
-		return (verticeInicio + verticeDestino);
+		return Objects.hash(verticeInicio) + Objects.hash(verticeDestino);
 	}
 
-	private boolean sonIguales(Arista a) {
+	private boolean sonIguales(Arista<?> a) {
 		return this.verticeInicio == a.verticeInicio
 			&& this.verticeDestino == a.verticeDestino;
 	}
 
-	private boolean sonSimilares(Arista a) {
+	@SuppressWarnings("unused")
+	private boolean sonSimilares(Arista<?> a) {
 		return sonIguales(a) ||
-		(this.verticeInicio == a.verticeDestino && this.verticeDestino == a.verticeInicio);
+		(this.verticeInicio.equals(a.verticeDestino) && this.verticeDestino.equals(a.verticeInicio));
 	}
 
 	public String toString() {
 		return "(" + verticeInicio + ")--" + peso + "-->(" + verticeDestino + ")";
 	}
 
-	public static Comparator<Arista> aristaComparator() {
-		return new Comparator<Arista>() {
-
+	public static <T extends Comparable<T>> Comparator<Arista<T>> aristaComparator() {
+		return new Comparator<Arista<T>>() {
 			@Override
-			public int compare(Arista ar1, Arista ar2) {
+			public int compare(Arista<T> ar1, Arista<T> ar2) {
 //				System.out.println(ar1 + ", " + ar2);
 				int a;
 				if (ar1.peso != ar2.peso) {
 					a = Double.compare(ar1.peso, ar2.peso);
 				}
-				else if (ar1.verticeInicio != ar2.verticeInicio) {
-					a = Integer.compare(ar1.verticeInicio, ar1.verticeInicio);
+				else if (!ar1.verticeInicio.equals(ar2.verticeInicio)) {
+					a = ar1.verticeInicio.compareTo(ar2.verticeInicio);
 				} else {
-					a = Integer.compare(ar1.verticeDestino, ar1.verticeDestino);
+					a = ar1.verticeDestino.compareTo(ar2.verticeDestino);
 				}
 				return a;
 			}

@@ -2,20 +2,25 @@ package grafosLogica;
 
 import java.util.*;
 
-public class AGM {
+public class AGM<T extends Comparable<T>>{
 
-	private static Map<Integer, TreeSet<Arista>> adjList;
-	private static TreeSet<Arista> aristasConExtremoFuera;
-	private static Set<Arista> aristasDelAGM;
-	private static List<Integer> verticesConAristasPotenciales;
+	private Map<T, TreeSet<Arista<T>>> adjList;
+	private TreeSet<Arista<T>> aristasConExtremoFuera;
+	private Set<Arista<T>> aristasDelAGM;
+	private List<T> verticesConAristasPotenciales;
+	private Grafo<T> g;
 
-	public static Grafo AGMdelGrafo(Grafo g) {
-		if (!g.esConexo())
-			throw new IllegalArgumentException("Grafo no conexo");
-		return algoritmoAGM(g);
+	private AGM(Grafo<T> g) {
+		this.g = g;
 	}
 
-	private static void inicializarObjetosUtiles(Grafo g) {
+	public static <T extends Comparable<T>> Grafo<T> AGMdelGrafo(Grafo<T> g) {
+		if (!g.esConexo())
+			throw new IllegalArgumentException("Grafo no conexo");
+		return new AGM<T>(g).algoritmoAGM();
+	}
+
+	private void inicializarObjetosUtiles() {
 		adjList = g.listaDeAdyacencias();
 		aristasConExtremoFuera = new TreeSet<>(Arista.aristaComparator());
 		aristasDelAGM = new HashSet<>();
@@ -24,28 +29,28 @@ public class AGM {
 	}
 
 	// creo de sería de kruskal
-	private static Grafo algoritmoAGM(Grafo g) {
+	private Grafo<T> algoritmoAGM() {
 
-		inicializarObjetosUtiles(g);
+		inicializarObjetosUtiles();
 
 		while (verticesConAristasPotenciales.size() != g.tamanio()) {
 			agregarAristasConExtremos();
-			Arista aristaMenorPeso = obtenerAristaDeMenorPesoEntreLasPosibles();
+			Arista<T> aristaMenorPeso = obtenerAristaDeMenorPesoEntreLasPosibles();
 			verticesConAristasPotenciales.add(aristaMenorPeso.obtenerVerticeDestino());
 			aristasDelAGM.add(aristaMenorPeso);
 			descartarAristasQueGenerarianCiclos();
 		}
-		return new Grafo(verticesConAristasPotenciales, aristasDelAGM);
+		return new Grafo<>(verticesConAristasPotenciales, aristasDelAGM);
 	}
 
-	private static Arista obtenerAristaDeMenorPesoEntreLasPosibles() {
+	private Arista<T> obtenerAristaDeMenorPesoEntreLasPosibles() {
 //		System.out.println(aristasConExtremoFuera + "\n");
 		return aristasConExtremoFuera.pollFirst();
 	}
 
-	private static void agregarAristasConExtremos() {
-		for (int vertice: verticesConAristasPotenciales) {
-			for (Arista arista: adjList.get(vertice)) {
+	private void agregarAristasConExtremos() {
+		for (T vertice: verticesConAristasPotenciales) {
+			for (Arista<T> arista: adjList.get(vertice)) {
 				if (!aristasDelAGM.contains(arista) &&
 				!verticesConAristasPotenciales.contains(arista.obtenerVerticeDestino()))
 				{
@@ -55,9 +60,9 @@ public class AGM {
 		}
 	}
 
-	private static void descartarAristasQueGenerarianCiclos() {
-		Set<Arista> aristasParaDescartar = new HashSet<>();
-		for (Arista arista: aristasConExtremoFuera) {
+	private void descartarAristasQueGenerarianCiclos() {
+		Set<Arista<T>> aristasParaDescartar = new HashSet<>();
+		for (Arista<T> arista: aristasConExtremoFuera) {
 			if (verticesConAristasPotenciales.contains(arista.obtenerVerticeInicio())
 			&& verticesConAristasPotenciales.contains(arista.obtenerVerticeDestino())) {
 				aristasParaDescartar.add(arista);
