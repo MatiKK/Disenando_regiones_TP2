@@ -89,10 +89,13 @@ public class Controlador {
     			System.out.println(p1 + " limitrofe con "+p2+"? " + provinciasLimitrofes);
     			if (provinciasLimitrofes) {			
     		    	
+    				//Agrego Arista Origen-->Destino
     		    	Arista NuevaArista = new Arista(p1.coordenadas(),p2.coordenadas()); 
+    		    	//Agergo Arista Destino-->Origen
+    		    	Arista NuevaAristaComplementaria = new Arista(p2.coordenadas(),p1.coordenadas()); 
     		    	
     		    	ListaDeEnlacesEntreProvincias.add(NuevaArista);
-    				
+    		    	ListaDeEnlacesEntreProvincias.add(NuevaAristaComplementaria);
     	
     			}
     		}
@@ -163,13 +166,10 @@ public class Controlador {
 				System.out.println("Comprobe que tengo una coordenada origen igual con la provincia: " + provinciaComboBox1 + 
 				" con latitud: " + latitudCoordinateDestinoListaDeEnlacesPronvincia1 +  
 				" y longitud: " + longitudCoordinateDestinoListaDeEnlacesPronvincia1);
-				
-				
+
 				System.out.println("estoy validando: " + provinciaComboBox2);
 				
 				System.out.println("estoy comparando estas latitudes: " + latitudCoordinateDestinoListaDeEnlacesPronvincia1 + " y: " + latitudCordenadaProvincia2);
-				
-				
 				
 				System.out.println("estoy comparando estas longitudes: " + longitudCoordinateDestinoListaDeEnlacesPronvincia1 + " y: " + longitudCordenadaProvincia2);
 				
@@ -181,10 +181,9 @@ public class Controlador {
 					int PesoEnNumero = Integer.valueOf(valorPesoIngresado);
 					
 					agregarPesoEnRelacionEntrePronvincias(ListaDeEnlacesEntreProvincias.get(i),PesoEnNumero);
-						
 					
-					
-					
+				}else {
+					System.out.println("no es una provincia limitrofe");
 				}
 				
 				

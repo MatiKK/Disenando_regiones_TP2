@@ -9,15 +9,22 @@ import org.openstreetmap.gui.jmapviewer.Coordinate;
 public class CoordenadasCapitalesArgentina {
     private Map<String, Coordenada> capitales;
     private ArrayList<Provincia> provincias;
+    
+    private int[][] matrizAdyacencia;
 
     public CoordenadasCapitalesArgentina() {
         this.capitales = new HashMap<>();
         
         this.provincias = new ArrayList<Provincia>(); 
         
+        this.matrizAdyacencia = new int[provincias.size()][provincias.size()];
+        
         // Agregar las coordenadas de las capitales de las provincias de Argentina
         agregarCoordenadas();
         agregarProvincias();
+        
+        
+        //construirMatrizAdyacencia();
     }
     
     
@@ -47,6 +54,22 @@ public class CoordenadasCapitalesArgentina {
     	this.provincias.add(new Provincia("Tucumán", new Coordinate(-26.9, -65.4)));
 
     }
+    
+    
+    
+    private void construirMatrizAdyacencia() {
+        for (int i = 0; i < provincias.size(); i++) {
+            for (int j = i + 1; j < provincias.size(); j++) {
+                int similaridad = 0;
+                matrizAdyacencia[i][j] = similaridad;
+                matrizAdyacencia[j][i] = similaridad;
+            }
+        }
+    }
+    
+    
+    
+    
     
 
     private void agregarCoordenadas() {

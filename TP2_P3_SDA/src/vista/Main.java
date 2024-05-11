@@ -60,7 +60,7 @@ public class Main extends JFrame {
         
         
         
-        JComboBox comboBox = new JComboBox();
+        JComboBox<String> comboBox = new JComboBox<String>();
         comboBox.setModel(new DefaultComboBoxModel<>(opciones));
         //comboBox.setModel(new DefaultComboBoxModel(new String[] listaCombo));
         
@@ -76,12 +76,13 @@ public class Main extends JFrame {
         });
         
         //puedo tomar la opcion elegida
-        //String provinciaComboBox1 = (String)comboBox.getSelectedItem();
-        String[] provinciaComboBox1 = new String[1];
+        //String[] provinciaComboBox1 = new String[1];
+        String provinciaComboBox1 = (String)comboBox.getSelectedItem();
         System.out.println("el valor del provincia comboBox1 es: " + provinciaComboBox1);
         
         
-        JComboBox comboBox_1 = new JComboBox();
+        JComboBox<String> comboBox_1 = new JComboBox<String>();
+        
         comboBox_1.setToolTipText("Seleccionar Provincia");
         buttonPanel.add(comboBox_1);
         
@@ -91,8 +92,7 @@ public class Main extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String seleccionProv2 = (String) comboBox_1.getSelectedItem();
                 System.out.println("Elemento seleccionado: " + seleccionProv2);
-                
-                //provinciaComboBox1 = seleccion1;
+
                 
             }
         });
@@ -100,14 +100,7 @@ public class Main extends JFrame {
         String provinciaComboBox2 = (String)comboBox_1.getSelectedItem();
         System.out.println("el valor del provincia comboBox2 es: " + provinciaComboBox2);
         
-        
-        
-        
-        
-        //comboBox.setModel(new DefaultComboBoxModel(String [] controlador.getListaDePronvincias().getNombreProvincias());
 
-        
-        
         
         JLabel lblNewLabel_2 = new JLabel("Indique peso:");
         buttonPanel.add(lblNewLabel_2);
@@ -116,11 +109,11 @@ public class Main extends JFrame {
         buttonPanel.add(valorPesoEntradaUser);
         valorPesoEntradaUser.setColumns(10);
         
-        String valorPesoIngresado = valorPesoEntradaUser.getText();
         
+        
+        //AGREGO PESO A RELACION AL MAPA
         JButton btnAgregarRelacion = new JButton("Agregar relación");
         buttonPanel.add(btnAgregarRelacion);
-        
         
         btnAgregarRelacion.addActionListener(new ActionListener() {
             @Override
@@ -222,7 +215,7 @@ public class Main extends JFrame {
             
             mapViewer.addMapMarker(markerDot);
         }else {
-        	System.out.println("estoy agregando valor 0");
+        	System.out.println("estoy agregando valor 0 no dibujo grafico");
         }
 
     }
