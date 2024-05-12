@@ -68,11 +68,11 @@ public class EjemploGrafos {
 				new Arista<>('a','b',2),
 				new Arista<>('b','c',2),
 				new Arista<>('f','e',4),
-				new Arista<>('d','a',1)
-
 //				new Arista<>('c','f',8),
 //				new Arista<>('e','a',5),
 //				new Arista<>('f','d',3),
+				new Arista<>('d','a',1)
+
 				));
 		grafo3 = new Grafo<>(vertices, aristas);
 	}
