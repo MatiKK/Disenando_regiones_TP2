@@ -3,7 +3,7 @@ package grafosLogica;
 import java.util.Comparator;
 import java.util.Objects;
 
-public class Arista<T extends Comparable<T>> {
+public class Arista<T extends Comparable<T>> implements Comparable<Arista<T>>{
 
 	private T verticeInicio;
 	private T verticeDestino;
@@ -62,19 +62,22 @@ public class Arista<T extends Comparable<T>> {
 		return new Comparator<Arista<T>>() {
 			@Override
 			public int compare(Arista<T> ar1, Arista<T> ar2) {
-//				System.out.println(ar1 + ", " + ar2);
-				int a;
-				if (ar1.peso != ar2.peso) {
-					a = Double.compare(ar1.peso, ar2.peso);
-				}
-				else if (!ar1.verticeInicio.equals(ar2.verticeInicio)) {
-					a = ar1.verticeInicio.compareTo(ar2.verticeInicio);
-				} else {
-					a = ar1.verticeDestino.compareTo(ar2.verticeDestino);
-				}
-				return a;
+				return ar1.compareTo(ar2);
 			}
 		};
+	}
+
+	public int compareTo(Arista<T> ar) {
+		int a;
+		if (this.peso != ar.peso) {
+			a = Double.compare(this.peso, ar.peso);
+		}
+		else if (!this.verticeInicio.equals(ar.verticeInicio)) {
+			a = this.verticeInicio.compareTo(ar.verticeInicio);
+		} else {
+			a = this.verticeDestino.compareTo(ar.verticeDestino);
+		}
+		return a;
 	}
 
 }
