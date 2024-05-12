@@ -4,14 +4,20 @@ import java.util.*;
 
 public class AGM<T extends Comparable<T>>{
 
-	private Map<T, TreeSet<Arista<T>>> adjList;
+	private TreeMap<T, TreeSet<Arista<T>>> adjList;
 	private TreeSet<Arista<T>> aristasConExtremoFuera;
-	private Set<Arista<T>> aristasDelAGM;
+	private TreeSet<Arista<T>> aristasDelAGM;
 	private List<T> verticesConAristasPotenciales;
 	private Grafo<T> g;
 
 	private AGM(Grafo<T> g) {
 		this.g = g;
+	}
+
+	public static <T extends Comparable<T>> TreeSet<Arista<T>> aristasDelAGM(Grafo<T> g) {
+		AGM<T> agm = new AGM<>(g);
+		agm.algoritmoAGM();
+		return agm.aristasDelAGM;
 	}
 
 	public static <T extends Comparable<T>> Grafo<T> AGMdelGrafo(Grafo<T> g) {
@@ -23,7 +29,7 @@ public class AGM<T extends Comparable<T>>{
 	private void inicializarObjetosUtiles() {
 		adjList = g.listaDeAdyacencias();
 		aristasConExtremoFuera = new TreeSet<>(Arista.aristaComparator());
-		aristasDelAGM = new HashSet<>();
+		aristasDelAGM = new TreeSet<>();
 		verticesConAristasPotenciales = new ArrayList<>();
 		verticesConAristasPotenciales.add(g.primerVertice());
 	}
