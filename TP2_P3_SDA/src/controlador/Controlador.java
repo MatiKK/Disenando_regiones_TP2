@@ -23,10 +23,12 @@ public class Controlador {
     }
 
     private void mostrarMapaConGrafo(Set<Arista<Provincia>> aristas) {
+    	System.out.println("------------------------------------------");
     	limpiarMapa();
     	for (Provincia p: provincias)
     		mostrarPunto(vista.getMapViewer(),p.coordenadas(), p.toString(), Color.YELLOW);
     	for (Arista<Provincia> ar: aristas) {
+    		System.out.println(ar);
     		graficarArista(vista.getMapViewer(), ar);
     	}
     }
@@ -108,7 +110,8 @@ public class Controlador {
     public void agregarNuevaProvincia(Provincia p) {
     	grafo.agregarVertice(p);
     	provincias.add(p);
-    	mostrarPunto(vista.getMapViewer(), p.coordenadas(), p.toString(), Color.YELLOW);
+//    	mostrarPunto(vista.getMapViewer(), p.coordenadas(), p.toString(), Color.YELLOW);
+    	mostrarPunto(vista.getMapViewer(), p.coordenadas(), "", Color.YELLOW);
     }
 
     private void mostrarPunto(JMapViewer map, Coordinate c, String text, Color color) {
@@ -141,6 +144,7 @@ public class Controlador {
     	grafo = new Grafo<>();
         aristasG = new HashSet<>();
         provincias = new HashSet<>();
+        aristasAGM = new TreeSet<>();
     }
 
     public void quitarTodosLosPuntos() {
@@ -153,8 +157,8 @@ public class Controlador {
 				if (p.equals(p2)) continue;
 					double peso = (double) new java.util.Random().nextInt(1, 100);
 					Arista<Provincia> ar = new Arista<>(p,p2,peso);
-		    		grafo.agregarAristaEntreVertices(p, p2, peso);
-					agregarArista(ar);
+					if (agregarArista(ar))
+						grafo.agregarAristaEntreVertices(p, p2, peso);
 				}
 		}
 		mostrarMapaConGrafo();
@@ -165,8 +169,8 @@ public class Controlador {
 			for (Provincia p2: p.obtenerLimitrofes()) {
 					double peso = (double) new java.util.Random().nextInt(1, 100);
 					Arista<Provincia> ar = new Arista<>(p,p2,peso);
-		    		grafo.agregarAristaEntreVertices(p, p2, peso);
-					agregarArista(ar);
+					if (agregarArista(ar))
+						grafo.agregarAristaEntreVertices(p, p2, peso);
 				}
 		}
 		mostrarMapaConGrafo();
