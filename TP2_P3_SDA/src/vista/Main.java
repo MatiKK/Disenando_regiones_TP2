@@ -1,8 +1,10 @@
 package vista;//
 
 import controlador.Controlador;
-
+import grafosLogica.Arista;
 import logica.Provincia;
+import logica.ProvinciasArgentinas;
+
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
 import javax.swing.*;
@@ -26,12 +28,34 @@ public class Main extends JFrame {
 	private JButton quitarAristasAGM;
 	private boolean agmEnPantalla;
 
+	public static void main(String[] args) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				Main frame = new Main();
+				frame.agregarProvinciasArgentinas();
+				frame.agregarPesosAleatorios();
+				frame.setVisible(true);
+			}
+		});
+	}
+
 	public Main() {
 		agmEnPantalla = false;
 		mapViewer = new JMapViewer();
-		controlador = new Controlador(this, true);
+		controlador = new Controlador(this);
 		initializeUI();
 	}
+
+	private void agregarProvinciasArgentinas() {
+		for (Provincia p: ProvinciasArgentinas.provinciasDeArgentina())
+			nuevaProvincia(p);
+	}
+
+	private void agregarPesosAleatorios() {
+		controlador.provinciasArgentinasConPesosAleatorios();
+	}
+	
 
 	private void initializeUI() {
 		setTitle("Diseño de Regiones de un País");
@@ -71,14 +95,7 @@ public class Main extends JFrame {
 					Point punto = e.getPoint();
 					Coordinate c = (Coordinate) mapViewer.getPosition(punto);
 					Provincia prov = new Provincia(nombreProvincia, c);
-					controlador.nuevaProvincia(prov);
-					comboBox1.addItem(prov);
-					comboBox1.setSelectedItem(prov);
-					actualizarComboBox2();
-					quitarAristasAGM.setVisible(false);
-					if (agmEnPantalla)
-						controlador.mostrarMapaConGrafo();
-					agmEnPantalla = false;
+					nuevaProvincia(prov);
 				}
 			}
 		});
@@ -126,6 +143,7 @@ public class Main extends JFrame {
 		showGraphButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				controlador.mostrarMapaConGrafo();
+				quitarAristasAGM.setVisible(false);
 			}
 		});
 		buttonPanel.add(showGraphButton);
@@ -149,6 +167,7 @@ public class Main extends JFrame {
 					String input = JOptionPane.showInputDialog("¿Cuántas regiones desea mostrar (quitando las aristas más pesadas)?");
 					int n = Integer.valueOf(input);
 					controlador.quitarAristasDelAGM(n);
+					quitarAristasAGM.setVisible(false);
 				} catch (NumberFormatException ex) {
 					mostrarAlerta("No ingresó un número entero");
 				}
@@ -191,13 +210,15 @@ public class Main extends JFrame {
 		JOptionPane.showMessageDialog(null, mensaje);
 	}
 
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				Main frame = new Main();
-				frame.setVisible(true);
-			}
-		});
+	private void nuevaProvincia(Provincia prov) {
+		controlador.agregarNuevaProvincia(prov);
+		comboBox1.addItem(prov);
+		comboBox1.setSelectedItem(prov);
+		actualizarComboBox2();
+		quitarAristasAGM.setVisible(false);
+		if (agmEnPantalla)
+			controlador.mostrarMapaConGrafo();
+		agmEnPantalla = false;
 	}
+
 }

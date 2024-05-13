@@ -2,6 +2,7 @@ package logica;
 
 
 import java.util.Arrays;
+import java.util.ArrayList;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 
@@ -9,7 +10,7 @@ public class Provincia implements Comparable<Provincia>{
 
 	private String nombre;
 	private Coordinate coordenada;
-	java.util.ArrayList<Provincia> limitrofes;
+	private ArrayList<Provincia> limitrofes;
 	
 	public Provincia(String name, Coordinate coords) {
 		nombre = name;
@@ -34,6 +35,11 @@ public class Provincia implements Comparable<Provincia>{
 		return a;
 	}
 
+	public ArrayList<Provincia> obtenerLimitrofes(){
+//		return (ArrayList<Provincia>) limitrofes.clone();
+		return limitrofes;
+	}
+
 	public String toString() {
 		return nombre;
 	}
@@ -41,5 +47,5 @@ public class Provincia implements Comparable<Provincia>{
 	public Coordinate coordenadas() {
 		return coordenada;
 	}
-	
+
 }

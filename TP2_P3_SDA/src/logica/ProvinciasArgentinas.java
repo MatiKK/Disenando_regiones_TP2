@@ -42,21 +42,6 @@ public class ProvinciasArgentinas {
 		};
 	}
 
-	public static Grafo<Provincia> grafoProvinciasArgentina(controlador.Controlador c){
-		List<Provincia> provs = new ArrayList<>(Arrays.asList(provinciasDeArgentina()));
-		Set<Arista<Provincia>> ars = new HashSet<>();
-		for (Provincia p: provs) {
-			c.nuevaProvincia(p);
-			for (Provincia p2: p.limitrofes) {
-				double peso = (double) new java.util.Random().nextInt(1, 100);
-				Arista<Provincia> ar = new Arista<>(p,p2,peso);
-				if (c.agregarArista(ar))
-					ars.add(ar);
-			}
-		}
-		return new Grafo<>(provs,ars);
-	}
-
 	private static void agregarLimitrofes() {
 		buenosAires.agregarLimitrofes(CABA,cordoba,entreRios,laPampa,rioNegro,santaFe);
 		CABA.agregarLimitrofes(buenosAires);

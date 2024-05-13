@@ -18,15 +18,11 @@ public class Controlador {
     private Set<Arista<Provincia>> aristasG;
     private TreeSet<Arista<Provincia>> aristasAGM;
 
-    public Controlador(Main vista, boolean usarProvArg) {
+    public Controlador(Main vista) {
         this.vista = vista;
         aristasG = new HashSet<>();
         grafo = new Grafo<>();
         provincias = new HashSet<>();
-        if (usarProvArg) {
-        	grafo = ProvinciasArgentinas.grafoProvinciasArgentina(this);
-        	mostrarMapaConGrafo();
-        }
     }
 
     private void mostrarMapaConGrafo(Set<Arista<Provincia>> aristas) {
@@ -112,7 +108,7 @@ public class Controlador {
     	mostrarPunto(map, coordPeso, String.valueOf((int) peso), Color.RED);
     }
 
-    public void nuevaProvincia(Provincia p) {
+    public void agregarNuevaProvincia(Provincia p) {
     	grafo.agregarVertice(p);
     	provincias.add(p);
     	mostrarPunto(vista.getMapViewer(), p.coordenadas(), p.toString(), Color.YELLOW);
@@ -142,6 +138,18 @@ public class Controlador {
     
     public boolean agregarArista(Arista<Provincia> ar) {
     	return aristasG.add(ar);
+    }
+
+    public void provinciasArgentinasConPesosAleatorios() {
+		for (Provincia p: provincias) {
+			for (Provincia p2: p.obtenerLimitrofes()) {
+					double peso = (double) new java.util.Random().nextInt(1, 100);
+					Arista<Provincia> ar = new Arista<>(p,p2,peso);
+		    		grafo.agregarAristaEntreVertices(p, p2, peso);
+					agregarArista(ar);
+				}
+		}
+		mostrarMapaConGrafo();
     }
 
 }
