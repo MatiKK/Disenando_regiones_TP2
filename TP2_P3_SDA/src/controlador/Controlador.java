@@ -139,9 +139,13 @@ public class Controlador {
 
     private void inicializarObjetos(){
     	grafo = new Grafo<>();
-        aristasG = new HashSet<>();
         provincias = new HashSet<>();
-        aristasAGM = new TreeSet<>();
+        inicializarAristas();
+    }
+
+    private void inicializarAristas(){
+    	aristasG = new HashSet<>();
+    	aristasAGM = new TreeSet<>();
     }
 
     public void quitarTodosLosPuntos() {
@@ -149,6 +153,7 @@ public class Controlador {
     }
 
     public void grafoCompletoAristasAleatorias() {
+    	inicializarAristas();
 		for (Provincia p: provincias) {
 			for (Provincia p2: provincias) {
 				if (p.equals(p2)) continue;
@@ -158,6 +163,7 @@ public class Controlador {
 						grafo.agregarAristaEntreVertices(p, p2, peso);
 				}
 		}
+		grafo = new Grafo<>(provincias, aristasG);
 		mostrarMapaConGrafo();
     }
 

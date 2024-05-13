@@ -257,6 +257,8 @@ public class Main extends JFrame {
 		controlador.quitarTodosLosPuntos();
 		mapViewer.removeAllMapMarkers();
 		mapViewer.removeAllMapPolygons();
+		comboBox1.removeAllItems();
+		actualizarComboBox2();
 	}
 
 	private int cantidadProvincias() {
