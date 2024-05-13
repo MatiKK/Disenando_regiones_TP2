@@ -18,10 +18,8 @@ public class Controlador {
     private TreeSet<Arista<Provincia>> aristasAGM;
 
     public Controlador(Main vista) {
-        this.vista = vista;
-        aristasG = new HashSet<>();
-        grafo = new Grafo<>();
-        provincias = new HashSet<>();
+    	this.vista = vista;
+    	inicializarObjetos();
     }
 
     private void mostrarMapaConGrafo(Set<Arista<Provincia>> aristas) {
@@ -137,6 +135,16 @@ public class Controlador {
     
     public boolean agregarArista(Arista<Provincia> ar) {
     	return aristasG.add(ar);
+    }
+
+    private void inicializarObjetos(){
+    	grafo = new Grafo<>();
+        aristasG = new HashSet<>();
+        provincias = new HashSet<>();
+    }
+
+    public void quitarTodosLosPuntos() {
+    	inicializarObjetos();
     }
 
     public void grafoCompletoAristasAleatorias() {

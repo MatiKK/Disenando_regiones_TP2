@@ -86,7 +86,7 @@ public class Main extends JFrame {
 
 		mapPanel.add(mapViewer, BorderLayout.CENTER);
 		
-		JLabel labelAyuda = new JLabel("Doble clic derecho para ubicar una nueva locación");
+		JLabel labelAyuda = new JLabel("Doble clic derecho para una nueva locación");
 		buttonPanel.add(labelAyuda);
 		labelAyuda.setHorizontalAlignment(SwingConstants.LEFT);
 
@@ -190,8 +190,10 @@ public class Main extends JFrame {
 				repaint();
 			}
 		});
+
 		
-		JButton grafoCompleto = new JButton("Crear todas las relaciones posibles");
+		
+		JButton grafoCompleto = new JButton("Grafo completo aleatorio");
 		buttonPanel.add(grafoCompleto);
 		grafoCompleto.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -203,11 +205,19 @@ public class Main extends JFrame {
 				quitarAristasAGM.setVisible(false);
 			}
 		});
+
+		JButton quitarPuntos = new JButton("Borrar todo");
+		buttonPanel.add(quitarPuntos);
+		quitarPuntos .addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				quitarTodosLosPuntos();
+				buttonPanel.add(cargarDatosArgentina);
+				buttonPanel.add(cargarLimitrofesAleatoriosArgentina);
+				cargarLimitrofesAleatoriosArgentina.setVisible(false);
+				repaint();
+			}
+		});
 		
-		
-		controlador.grafoCompletoAristasAleatorias();
-		
-		buttonPanel.add(cargarDatosArgentina);
 }
 
 	// previene que se pueda añadir arista entre mismo vertice
@@ -242,6 +252,12 @@ public class Main extends JFrame {
 		frameParaElegirRelacion.add(panel);
 		frameParaElegirRelacion.setVisible(false);
 		
+	}
+
+	private void quitarTodosLosPuntos() {
+		controlador.quitarTodosLosPuntos();
+		mapViewer.removeAllMapMarkers();
+		mapViewer.removeAllMapPolygons();
 	}
 
 	private int cantidadProvincias() {
