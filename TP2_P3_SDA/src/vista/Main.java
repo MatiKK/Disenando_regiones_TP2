@@ -1,18 +1,16 @@
 package vista;//
 
 import controlador.Controlador;
-import grafosLogica.Arista;
 import logica.Provincia;
 import logica.ProvinciasArgentinas;
-
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 public class Main extends JFrame {
 
@@ -27,14 +25,13 @@ public class Main extends JFrame {
 	JComboBox<Provincia> comboBox2;
 	private JButton quitarAristasAGM;
 	private boolean agmEnPantalla;
+	private JFrame frameParaElegirRelacion;
 
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				Main frame = new Main();
-				frame.agregarProvinciasArgentinas();
-				frame.agregarPesosAleatorios();
 				frame.setVisible(true);
 			}
 		});
@@ -51,15 +48,15 @@ public class Main extends JFrame {
 		for (Provincia p: ProvinciasArgentinas.provinciasDeArgentina())
 			nuevaProvincia(p);
 	}
-
 	private void agregarPesosAleatorios() {
-		controlador.provinciasArgentinasConPesosAleatorios();
+		controlador.provinciasArgentinasPesosAleatorios();
 	}
 	
 
 	private void initializeUI() {
 		setTitle("Diseño de Regiones de un País");
-		setSize(1000, 500);
+//		setSize(1000, 500);
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JPanel buttonPanel = new JPanel();
@@ -71,20 +68,7 @@ public class Main extends JFrame {
 		mapViewer.setZoom(5);
 		mapViewer.setTileSource(new org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource.Mapnik());
 		mapViewer.setDisplayPosition(new Coordinate(-40.6037, -65.3816), 4);
-		mapViewer.addMouseListener(new MouseListener() {
-
-			public void mouseReleased(MouseEvent e) {
-			}
-
-			public void mousePressed(MouseEvent e) {
-			}
-
-			public void mouseExited(MouseEvent e) {
-			}
-
-			public void mouseEntered(MouseEvent e) {
-			}
-
+		mapViewer.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (SwingUtilities.isRightMouseButton(e) && e.getClickCount() == 2) {
 					String nombreProvincia;
@@ -101,6 +85,10 @@ public class Main extends JFrame {
 		});
 
 		mapPanel.add(mapViewer, BorderLayout.CENTER);
+		
+		JLabel labelAyuda = new JLabel("Doble clic derecho para ubicar una nueva locación");
+		buttonPanel.add(labelAyuda);
+		labelAyuda.setHorizontalAlignment(SwingConstants.LEFT);
 
 		comboBox1 = new JComboBox<>();
 		buttonPanel.add(comboBox1);
@@ -113,13 +101,6 @@ public class Main extends JFrame {
 		comboBox2 = new JComboBox<>();
 		buttonPanel.add(comboBox2);
 
-		JLabel lblNewLabel_2 = new JLabel("Indique peso:");
-		buttonPanel.add(lblNewLabel_2);
-
-		valorPesoEntradaUser = new JTextField();
-		buttonPanel.add(valorPesoEntradaUser);
-		valorPesoEntradaUser.setColumns(10);
-
 		// AGREGO PESO A RELACION AL MAPA
 		JButton btnAgregarRelacion = new JButton("Agregar relación");
 		buttonPanel.add(btnAgregarRelacion);
@@ -127,15 +108,10 @@ public class Main extends JFrame {
 		btnAgregarRelacion.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					double peso = Double.valueOf(valorPesoEntradaUser.getText());
-					Provincia p1 = (Provincia) comboBox1.getSelectedItem();
-					Provincia p2 = (Provincia) comboBox2.getSelectedItem();
-					controlador.nuevaArista(p1, p2, peso);
-				} catch (NumberFormatException err) {
-					mostrarAlerta("Error: no ingresó un valor numérico");
-				} finally {
-					valorPesoEntradaUser.setText(null);
+				if (cantidadProvincias() == 0)
+					mostrarAlerta("Aún no hay provincias disponibles.");
+				else {
+					frameParaElegirRelacion.setVisible(true);
 				}
 			}
 		});
@@ -190,7 +166,49 @@ public class Main extends JFrame {
 
 		getContentPane().add(mapPanel, BorderLayout.CENTER);
 
-	}
+		crearFrameAgregarRelacion();
+
+		JButton cargarDatosArgentina = new JButton("Cargar provincias de Argentina");
+		JButton cargarLimitrofesAleatoriosArgentina = new JButton("Cargar relaciones aleatorias en Argentina");
+		buttonPanel.add(cargarLimitrofesAleatoriosArgentina);
+		buttonPanel.add(cargarDatosArgentina);
+		cargarLimitrofesAleatoriosArgentina.setVisible(false);
+
+		cargarDatosArgentina.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				agregarProvinciasArgentinas();
+				cargarLimitrofesAleatoriosArgentina.setVisible(true);
+				buttonPanel.remove(cargarDatosArgentina);
+				repaint();
+			}
+		});
+
+		cargarLimitrofesAleatoriosArgentina.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				agregarPesosAleatorios();
+				buttonPanel.remove(cargarLimitrofesAleatoriosArgentina);
+				repaint();
+			}
+		});
+		
+		JButton grafoCompleto = new JButton("Crear todas las relaciones posibles");
+		buttonPanel.add(grafoCompleto);
+		grafoCompleto.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (cantidadProvincias() == 0) {
+					mostrarAlerta("Aún no hay provincias disponibles.");
+					return;
+				}
+				controlador.grafoCompletoAristasAleatorias();
+				quitarAristasAGM.setVisible(false);
+			}
+		});
+		
+		
+		controlador.grafoCompletoAristasAleatorias();
+		
+		buttonPanel.add(cargarDatosArgentina);
+}
 
 	// previene que se pueda añadir arista entre mismo vertice
 	private void actualizarComboBox2() {
@@ -200,6 +218,34 @@ public class Main extends JFrame {
 			if (!p.equals(comboBox1.getSelectedItem()))
 				comboBox2.addItem(p);
 		}
+	}
+
+	private void crearFrameAgregarRelacion() {
+		frameParaElegirRelacion = new JFrame();
+		JPanel panel = new JPanel();
+		panel.add(comboBox1);
+		panel.add(comboBox2);
+		JLabel lblNewLabel_2 = new JLabel("       Indique peso:");
+		panel.add(lblNewLabel_2);
+		valorPesoEntradaUser = new JTextField();
+		panel.add(valorPesoEntradaUser);
+		valorPesoEntradaUser.setColumns(10);
+
+		JButton cargarRelacion = new JButton("Cargar relación");
+		panel.add(cargarRelacion);
+		cargarRelacion.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				cargarNuevaArista();				
+			}
+		});
+		frameParaElegirRelacion.setBounds(100,100,550,200);
+		frameParaElegirRelacion.add(panel);
+		frameParaElegirRelacion.setVisible(false);
+		
+	}
+
+	private int cantidadProvincias() {
+		return comboBox1.getItemCount();
 	}
 
 	public JMapViewer getMapViewer() {
@@ -219,6 +265,22 @@ public class Main extends JFrame {
 		if (agmEnPantalla)
 			controlador.mostrarMapaConGrafo();
 		agmEnPantalla = false;
+	}
+
+	private void cargarNuevaArista() {
+		try {
+			if (agmEnPantalla) {
+				controlador.mostrarMapaConGrafo();
+			}
+			double peso = Double.valueOf(valorPesoEntradaUser.getText());
+			Provincia p1 = (Provincia) comboBox1.getSelectedItem();
+			Provincia p2 = (Provincia) comboBox2.getSelectedItem();
+			controlador.nuevaArista(p1, p2, peso);
+		} catch (NumberFormatException err) {
+			mostrarAlerta("Error: no ingresó un valor numérico");
+		} finally {
+			valorPesoEntradaUser.setText(null);
+		}
 	}
 
 }

@@ -2,7 +2,6 @@ package controlador;
 
 import vista.Main;
 import logica.Provincia;
-import logica.ProvinciasArgentinas;
 import grafosLogica.*;
 import java.awt.Color;
 import java.util.*;
@@ -140,7 +139,20 @@ public class Controlador {
     	return aristasG.add(ar);
     }
 
-    public void provinciasArgentinasConPesosAleatorios() {
+    public void grafoCompletoAristasAleatorias() {
+		for (Provincia p: provincias) {
+			for (Provincia p2: provincias) {
+				if (p.equals(p2)) continue;
+					double peso = (double) new java.util.Random().nextInt(1, 100);
+					Arista<Provincia> ar = new Arista<>(p,p2,peso);
+		    		grafo.agregarAristaEntreVertices(p, p2, peso);
+					agregarArista(ar);
+				}
+		}
+		mostrarMapaConGrafo();
+    }
+
+    public void provinciasArgentinasPesosAleatorios() {
 		for (Provincia p: provincias) {
 			for (Provincia p2: p.obtenerLimitrofes()) {
 					double peso = (double) new java.util.Random().nextInt(1, 100);
