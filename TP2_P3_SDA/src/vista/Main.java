@@ -1,234 +1,203 @@
 package vista;//
 
 import controlador.Controlador;
-import logica.CoordenadasCapitalesArgentina;
-import logica.Provincia;
 
+import logica.Provincia;
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
-import org.openstreetmap.gui.jmapviewer.MapMarkerDot;
-import org.openstreetmap.gui.jmapviewer.interfaces.MapPolygon;
-import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 public class Main extends JFrame {
-    private Controlador controlador;
-    private JButton showGraphButton;
-    private JButton exitButton;
-    private JMapViewer mapViewer;
-    private JTextField valorPesoEntradaUser;
-    
 
-    public Main() {
-        controlador = new Controlador(this, new CoordenadasCapitalesArgentina());
-        initializeUI();
-    }
+	private static final long serialVersionUID = 7776727856633335088L;
 
-    private void initializeUI() {
-        setTitle("Diseño de Regiones de un País");
-        setSize(1600, 800);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	private Controlador controlador;
+	private JButton showGraphButton;
+	private JButton exitButton;
+	private JMapViewer mapViewer;
+	private JTextField valorPesoEntradaUser;
+	JComboBox<Provincia> comboBox1;
+	JComboBox<Provincia> comboBox2;
+	private JButton quitarAristasAGM;
+	private boolean agmEnPantalla;
 
-        JPanel buttonPanel = new JPanel();
-        JPanel mapPanel = new JPanel(new BorderLayout());
-        showGraphButton = new JButton("Ver Mapa con Grafo");
-        exitButton = new JButton("Salir");
+	public Main() {
+		agmEnPantalla = false;
+		mapViewer = new JMapViewer();
+		controlador = new Controlador(this, true);
+		initializeUI();
+	}
 
-        // Mapa
-        mapViewer = new JMapViewer();
-        mapViewer.setZoom(5);
-        mapViewer.setTileSource(new org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource.Mapnik());
-        mapViewer.setDisplayPosition(new Coordinate(-40.6037, -65.3816), 4);
+	private void initializeUI() {
+		setTitle("Diseño de Regiones de un País");
+		setSize(1000, 500);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        mapPanel.add(mapViewer, BorderLayout.CENTER);
-        
-        System.out.println("resultado de ver getcapitales: " + controlador.getListaDePronvincias().getCapitales());
-        
-        ArrayList<String> listaCombo = new ArrayList<String>();
-        listaCombo = controlador.getListaDePronvincias().getNombreProvincias();
-        
-        String[] opciones = listaCombo.toArray(new String[1]);
-        
-        JLabel lblNewLabel = new JLabel("Seleccione provincias a enlazar:");
-        buttonPanel.add(lblNewLabel);
-        
-        
-        
-        
-        JComboBox<String> comboBox = new JComboBox<String>();
-        comboBox.setModel(new DefaultComboBoxModel<>(opciones));
-        //comboBox.setModel(new DefaultComboBoxModel(new String[] listaCombo));
-        
-        comboBox.setToolTipText("Seleccionar Provincia");
-        buttonPanel.add(comboBox);
+		JPanel buttonPanel = new JPanel();
+		JPanel mapPanel = new JPanel(new BorderLayout());
+		showGraphButton = new JButton("Ver Mapa con Grafo");
+		exitButton = new JButton("Salir");
 
-        comboBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String seleccionProv1 = (String) comboBox.getSelectedItem();
-                System.out.println("Elemento seleccionado: " + seleccionProv1);
-                // Puedes realizar otras acciones con el elemento seleccionado aquí
-            }
-        });
-        
-        //puedo tomar la opcion elegida
-        //String[] provinciaComboBox1 = new String[1];
-        String provinciaComboBox1 = (String)comboBox.getSelectedItem();
-        System.out.println("el valor del provincia comboBox1 es: " + provinciaComboBox1);
-        
-        
-        JComboBox<String> comboBox_1 = new JComboBox<String>();
-        
-        comboBox_1.setToolTipText("Seleccionar Provincia");
-        buttonPanel.add(comboBox_1);
-        
-        comboBox_1.setModel(new DefaultComboBoxModel<>(opciones));
-        
-        comboBox_1.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String seleccionProv2 = (String) comboBox_1.getSelectedItem();
-                System.out.println("Elemento seleccionado: " + seleccionProv2);
+		// Mapa
+		mapViewer.setZoom(5);
+		mapViewer.setTileSource(new org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource.Mapnik());
+		mapViewer.setDisplayPosition(new Coordinate(-40.6037, -65.3816), 4);
+		mapViewer.addMouseListener(new MouseListener() {
 
-                
-            }
-        });
-        
-        String provinciaComboBox2 = (String)comboBox_1.getSelectedItem();
-        System.out.println("el valor del provincia comboBox2 es: " + provinciaComboBox2);
-        
+			public void mouseReleased(MouseEvent e) {
+			}
 
-        
-        JLabel lblNewLabel_2 = new JLabel("Indique peso:");
-        buttonPanel.add(lblNewLabel_2);
-        
-        valorPesoEntradaUser = new JTextField();
-        buttonPanel.add(valorPesoEntradaUser);
-        valorPesoEntradaUser.setColumns(10);
-        
-        
-        
-        //AGREGO PESO A RELACION AL MAPA
-        JButton btnAgregarRelacion = new JButton("Agregar relación");
-        buttonPanel.add(btnAgregarRelacion);
-        
-        btnAgregarRelacion.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Lógica para mostrar el mapa con el grafo a través del controlador
-            	
-            	System.out.println("los valores son: " + " provincia1: " + comboBox.getSelectedItem() + " prov2: " + comboBox_1.getSelectedItem() + " peso: " + valorPesoEntradaUser.getText()) ;
-            	
-            	controlador.agregarPesoEnRelacion(comboBox.getSelectedItem().toString(), comboBox_1.getSelectedItem().toString(), valorPesoEntradaUser.getText());
-            }
-        });
-        
-        
-        
-        showGraphButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Lógica para mostrar el mapa con el grafo a través del controlador
-                controlador.mostrarMapaConGrafo();
-            }
-        });
-        
-        
-        
-        
-        
-        JLabel lblNewLabel_1 = new JLabel("          ");
-        buttonPanel.add(lblNewLabel_1);
-        buttonPanel.add(showGraphButton);
-        
-        
-        
-        
-        
-        
-        
-        JButton testAgregoEnlace = new JButton("Agregar Limitrofes");
-        buttonPanel.add(testAgregoEnlace);
-        
-        
-        testAgregoEnlace.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Cerrar la aplicación
-            	controlador.agregarEnlacesDeProvincias();
-            }
-        });
-        buttonPanel.add(exitButton);
+			public void mousePressed(MouseEvent e) {
+			}
 
-        showGraphButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Lógica para mostrar el mapa con el grafo a través del controlador
-                controlador.mostrarMapaConGrafo();
-            }
-        });
+			public void mouseExited(MouseEvent e) {
+			}
 
-        exitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Cerrar la aplicación
-                System.exit(0);
-            }
-        });
-        
-        
+			public void mouseEntered(MouseEvent e) {
+			}
 
-        // Configurar el diseño de la ventana
-        getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(buttonPanel, BorderLayout.NORTH);
-        getContentPane().add(mapPanel, BorderLayout.CENTER);
-        
-        
-        
-        
-        
-    }
+			public void mouseClicked(MouseEvent e) {
+				if (SwingUtilities.isRightMouseButton(e) && e.getClickCount() == 2) {
+					String nombreProvincia;
+//					nombreProvincia = "test";
+					nombreProvincia = JOptionPane.showInputDialog("Ingrese nombre de provincia:");
+					if (nombreProvincia == null)
+						return;
+					Point punto = e.getPoint();
+					Coordinate c = (Coordinate) mapViewer.getPosition(punto);
+					Provincia prov = new Provincia(nombreProvincia, c);
+					controlador.nuevaProvincia(prov);
+					comboBox1.addItem(prov);
+					comboBox1.setSelectedItem(prov);
+					actualizarComboBox2();
+					quitarAristasAGM.setVisible(false);
+					if (agmEnPantalla)
+						controlador.mostrarMapaConGrafo();
+					agmEnPantalla = false;
+				}
+			}
+		});
 
-    public JMapViewer getMapViewer() {
-        return mapViewer;
-    }
-    
-    public void graficarEnlaces(Coordinate coordenadaOrigen, Coordinate coordenadaDestino, String tex) {
-        // Crea un objeto MapPolygonImpl con las coordenadas de origen y destino
-        MapPolygonImpl linea = new MapPolygonImpl(coordenadaOrigen, coordenadaDestino,coordenadaOrigen);
+		mapPanel.add(mapViewer, BorderLayout.CENTER);
 
-        // Agrega la línea al mapa
-        mapViewer.addMapPolygon(linea);
-        //controlador.mostrarMapaConGrafo();
-        
-        Coordinate CordIntermedia = Controlador.encontrarCoordenadaIntermedia(coordenadaOrigen, coordenadaDestino);
-        int pesoEnInt = Integer.parseInt(tex);
-        
-        if (pesoEnInt != 0) {
-        	MapMarkerDot markerDot = new MapMarkerDot(tex, CordIntermedia);
-            markerDot.setBackColor(Color.RED);
-            Font font = new Font("Arial", Font.BOLD, 18); 
-            markerDot.setFont(font);
-            
-            mapViewer.addMapMarker(markerDot);
-        }else {
-        	System.out.println("estoy agregando valor 0 no dibujo grafico");
-        }
+		comboBox1 = new JComboBox<>();
+		buttonPanel.add(comboBox1);
+		comboBox1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				actualizarComboBox2();
+			}
+		});
 
-    }
-    
-    
+		comboBox2 = new JComboBox<>();
+		buttonPanel.add(comboBox2);
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                Main frame = new Main();
-                frame.setVisible(true);
-            }
-        });
-    }
+		JLabel lblNewLabel_2 = new JLabel("Indique peso:");
+		buttonPanel.add(lblNewLabel_2);
+
+		valorPesoEntradaUser = new JTextField();
+		buttonPanel.add(valorPesoEntradaUser);
+		valorPesoEntradaUser.setColumns(10);
+
+		// AGREGO PESO A RELACION AL MAPA
+		JButton btnAgregarRelacion = new JButton("Agregar relación");
+		buttonPanel.add(btnAgregarRelacion);
+
+		btnAgregarRelacion.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					double peso = Double.valueOf(valorPesoEntradaUser.getText());
+					Provincia p1 = (Provincia) comboBox1.getSelectedItem();
+					Provincia p2 = (Provincia) comboBox2.getSelectedItem();
+					controlador.nuevaArista(p1, p2, peso);
+				} catch (NumberFormatException err) {
+					mostrarAlerta("Error: no ingresó un valor numérico");
+				} finally {
+					valorPesoEntradaUser.setText(null);
+				}
+			}
+		});
+
+		showGraphButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				controlador.mostrarMapaConGrafo();
+			}
+		});
+		buttonPanel.add(showGraphButton);
+
+		exitButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Cerrar la aplicación
+				System.exit(0);
+			}
+		});
+
+		// Configurar el diseño de la ventana
+		getContentPane().setLayout(new BorderLayout());
+		getContentPane().add(buttonPanel, BorderLayout.NORTH);
+
+		quitarAristasAGM = new JButton("Generar regiones");
+		quitarAristasAGM.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					String input = JOptionPane.showInputDialog("¿Cuántas regiones desea mostrar (quitando las aristas más pesadas)?");
+					int n = Integer.valueOf(input);
+					controlador.quitarAristasDelAGM(n);
+				} catch (NumberFormatException ex) {
+					mostrarAlerta("No ingresó un número entero");
+				}
+			}
+		});
+
+		JButton btnGenerarAGM = new JButton("Generar AGM");
+		btnGenerarAGM.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (controlador.dibujarAGM()) {
+				agmEnPantalla = true;
+				quitarAristasAGM.setVisible(true);
+				}
+			}
+		});
+
+		buttonPanel.add(btnGenerarAGM);
+		buttonPanel.add(quitarAristasAGM);
+		quitarAristasAGM.setVisible(false);
+
+		getContentPane().add(mapPanel, BorderLayout.CENTER);
+
+	}
+
+	// previene que se pueda añadir arista entre mismo vertice
+	private void actualizarComboBox2() {
+		comboBox2.removeAllItems();
+		for (int i = 0; i < comboBox1.getItemCount(); i++) {
+			Provincia p = (Provincia) comboBox1.getItemAt(i);
+			if (!p.equals(comboBox1.getSelectedItem()))
+				comboBox2.addItem(p);
+		}
+	}
+
+	public JMapViewer getMapViewer() {
+		return mapViewer;
+	}
+
+	public void mostrarAlerta(String mensaje) {
+		JOptionPane.showMessageDialog(null, mensaje);
+	}
+
+	public static void main(String[] args) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				Main frame = new Main();
+				frame.setVisible(true);
+			}
+		});
+	}
 }

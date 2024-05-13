@@ -43,9 +43,9 @@ public class Grafo<T extends Comparable<T>>{
 
 			for (Arista<T> a: aristasDelVertice) {
 				if (a.equals(arista)) {
-//					continue loop;
-					System.out.println(a + " " + arista);
-					throw new IllegalArgumentException("Arista repetida");
+					continue loop;
+//					System.out.println(a + " " + arista);
+//					throw new IllegalArgumentException("Arista repetida");
 				}
 			}
 
@@ -69,16 +69,25 @@ public class Grafo<T extends Comparable<T>>{
 		return adjList.size();
 	}
 
-	private void chequearValidezVertice(T v) {
+	private void chequearVerticeSiExiste(T v) {
+		if (v == null)
+			throw new NullPointerException("v es null");
 		if (!adjList.containsKey(v))
-			throw new IllegalArgumentException("Vértice no existente");
+			throw new IllegalArgumentException("Vértice no existe");
+	}
+
+	private void chequearVerticeSiNoExiste(T v) {
+		if (v == null)
+			throw new NullPointerException("v es null");
+		if (adjList.containsKey(v))
+			throw new IllegalArgumentException("Vértice existente");
 	}
 
 	private void chequearValidezPosibleArista(T v1, T v2, double p) {
 		if (p < 0)
 			throw new IllegalArgumentException("peso negativo no válido");
-		chequearValidezVertice(v1);
-		chequearValidezVertice(v2);
+		chequearVerticeSiExiste(v1);
+		chequearVerticeSiExiste(v2);
 		chequearQueSeanDistintosVertices(v1, v2);
 	}
 
@@ -103,11 +112,22 @@ public class Grafo<T extends Comparable<T>>{
 		throw new IllegalArgumentException("No existe arista entre dichos vertices");
 	}
 
-	public void agregarVertice(T n) {
-		chequearValidezVertice(n);
-		if (!adjList.containsKey(n)) {
-			agregarVerticeIgnorarChequeo(n);
+	public void cambiarPesoDeArista(T v1, T v2, double nuevoPeso) {
+		chequearVerticeSiExiste(v1);
+		chequearVerticeSiExiste(v2);
+		for (Arista<T> ar: adjList.get(v1)) {
+			if (ar.obtenerVerticeDestino().equals(v2))
+				ar.cambiarPeso(nuevoPeso);
 		}
+		for (Arista<T> ar: adjList.get(v2)) {
+			if (ar.obtenerVerticeDestino().equals(v1))
+				ar.cambiarPeso(nuevoPeso);
+		}
+	}
+
+	public void agregarVertice(T n) {
+		chequearVerticeSiNoExiste(n);
+		agregarVerticeIgnorarChequeo(n);
 	}
 
 	public void agregarVertices(Collection<T> vertices) {
@@ -163,8 +183,8 @@ public class Grafo<T extends Comparable<T>>{
 		return BFS.esConexo(this);
 	}
 
-	public Grafo<T> obtenerAGM() {
-		return AGM.AGMdelGrafo(this);
+	public TreeSet<Arista<T>> aristasDelAGM(){
+		return new AGM<T>(this).aristasDelAGM();
 	}
 
 }

@@ -17,7 +17,7 @@ public class TesteoGrafos {
 		if (esConexo) {
 
 			System.out.println("Aristas del AGM: ");
-			Set<?> aristas = AGM.aristasDelAGM(g);
+			Set<?> aristas = new AGM<>(g).aristasDelAGM();
 			for (Object arista: aristas)
 				System.out.println(arista);
 

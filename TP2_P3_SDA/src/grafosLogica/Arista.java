@@ -31,8 +31,8 @@ public class Arista<T extends Comparable<T>> implements Comparable<Arista<T>>{
 	public boolean equals(Object o) {
 		if (o instanceof Arista) {
 			Arista<?> a = (Arista<?>) o;
-//			return sonSimilares(a);
-			return sonIguales(a);
+			return sonSimilares(a);
+//			return sonIguales(a);
 		}
 
 		return false;
@@ -44,11 +44,10 @@ public class Arista<T extends Comparable<T>> implements Comparable<Arista<T>>{
 	}
 
 	private boolean sonIguales(Arista<?> a) {
-		return this.verticeInicio == a.verticeInicio
-			&& this.verticeDestino == a.verticeDestino;
+		return this.verticeInicio.equals(a.verticeInicio)
+			&& this.verticeDestino.equals(a.verticeDestino);
 	}
 
-	@SuppressWarnings("unused")
 	private boolean sonSimilares(Arista<?> a) {
 		return sonIguales(a) ||
 		(this.verticeInicio.equals(a.verticeDestino) && this.verticeDestino.equals(a.verticeInicio));
@@ -78,6 +77,10 @@ public class Arista<T extends Comparable<T>> implements Comparable<Arista<T>>{
 			a = this.verticeDestino.compareTo(ar.verticeDestino);
 		}
 		return a;
+	}
+
+	public void cambiarPeso(double nuevoPeso) {
+		peso = nuevoPeso;
 	}
 
 }

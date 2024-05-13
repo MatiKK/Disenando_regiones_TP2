@@ -1,6 +1,10 @@
 package logica;
 
+import java.util.*;
 import org.openstreetmap.gui.jmapviewer.Coordinate;
+import grafosLogica.Grafo;
+import grafosLogica.Arista;
+
 
 public class ProvinciasArgentinas {
 	private static final Provincia buenosAires = new Provincia("Buenos Aires", new Coordinate(-36.5, -60.5));
@@ -30,38 +34,54 @@ public class ProvinciasArgentinas {
 	private static final Provincia tucuman = new Provincia("Tucumán", new Coordinate(-26.9, -65.4));
 
 	public static Provincia[] provinciasDeArgentina() {
+		agregarLimitrofes();
 		return new Provincia[] {
 				buenosAires, CABA, catamarca, chaco, chubut, cordoba, corrientes, entreRios,
 				formosa, jujuy, laRioja, laPampa, mendoza, misiones, neuquen, rioNegro, salta,
-				sanJuan, sanLuis, santaCruz, santaFe, santiagoDelEstero, tierraDelFuego, tucuman};
+				sanJuan, sanLuis, santaCruz, santaFe, santiagoDelEstero, tierraDelFuego, tucuman
+		};
 	}
 
-    // mismo orden que en el map
-	public final static boolean[][] relacionDeProvinciasLimitrofes = {
-			{false, true, false, false, false, true, false, true, false, false, false, true, false, false, false, true, false, false, false, false, true, false, false, false},
-			{true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false},
-			{false, false, false, false, false, true, false, false, false, false, true, false, false, false, false, false, true, false, false, false, false, true, false, true},
-			{false, false, false, false, false, false, true, false, true, false, false, false, false, false, false, false, true, false, false, false, true, true, false, false},
-			{false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true, false, false, false, false},
-			{true, false, true, false, false, false, false, false, false, false, true, true, false, false, false, false, false, false, true, false, true, true, false, false},
-			{false, false, false, true, false, false, false, true, false, false, false, false, false, true, false, false, false, false, false, false, true, false, false, false},
-			{true, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false},
-			{false, false, false, true, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false},
-			{false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false},
-			{false, false, true, false, false, true, false, false, false, false, false, false, false, false, false, false, false, true, true, false, false, false, false, false},
-			{true, false, false, false, false, true, false, false, false, false, false, false, true, false, false, true, false, false, true, false, false, false, false, false},
-			{false, false, false, false, false, false, false, false, false, false, false, true, false, false, true, false, false, true, true, false, false, false, false, false},
-			{false, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false},
-			{false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, true, false, false, false, false, false, false, false, false},
-			{true, false, false, false, true, false, false, false, false, false, false, true, false, false, true, false, false, false, false, false, false, false, false, false},
-			{false, false, true, true, false, false, false, false, true, true, false, false, false, false, false, false, false, false, false, false, false, true, false, true},
-			{false, false, false, false, false, false, false, false, false, false, true, false, true, false, false, false, false, false, true, false, false, false, false, false},
-			{false, false, false, false, false, true, false, false, false, false, true, true, true, false, false, false, false, true, false, false, false, false, false, false},
-			{false, false, false, false, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false},
-			{true, false, false, true, false, true, true, true, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false},
-			{false, false, true, true, false, true, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true, false, false, true},
-			{false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false},
-			{false, false, true, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, true, false, false}
-	};
+	public static Grafo<Provincia> grafoProvinciasArgentina(controlador.Controlador c){
+		List<Provincia> provs = new ArrayList<>(Arrays.asList(provinciasDeArgentina()));
+		Set<Arista<Provincia>> ars = new HashSet<>();
+		for (Provincia p: provs) {
+			c.nuevaProvincia(p);
+			for (Provincia p2: p.limitrofes) {
+				double peso = (double) new java.util.Random().nextInt(1, 100);
+				Arista<Provincia> ar = new Arista<>(p,p2,peso);
+				if (c.agregarArista(ar))
+					ars.add(ar);
+			}
+		}
+		return new Grafo<>(provs,ars);
+	}
+
+	private static void agregarLimitrofes() {
+		buenosAires.agregarLimitrofes(CABA,cordoba,entreRios,laPampa,rioNegro,santaFe);
+		CABA.agregarLimitrofes(buenosAires);
+		catamarca.agregarLimitrofes(cordoba,laRioja,salta,santiagoDelEstero,tucuman);
+		chaco.agregarLimitrofes(corrientes,formosa,salta,santaFe,santiagoDelEstero);
+		chubut.agregarLimitrofes(rioNegro,santaCruz);
+		cordoba.agregarLimitrofes(buenosAires,catamarca,laPampa,laRioja,sanLuis,santaFe,santiagoDelEstero);
+		corrientes.agregarLimitrofes(chaco,entreRios,misiones, santaFe);
+		entreRios.agregarLimitrofes(buenosAires,corrientes,santaFe);
+		formosa.agregarLimitrofes(chaco, salta);
+		jujuy.agregarLimitrofes(salta);
+		laRioja.agregarLimitrofes(catamarca, cordoba,sanJuan,sanLuis);
+		laPampa.agregarLimitrofes(buenosAires,cordoba,mendoza,rioNegro,sanLuis);
+		mendoza.agregarLimitrofes(laPampa,neuquen,sanJuan,sanLuis);
+		misiones.agregarLimitrofes(corrientes);
+		neuquen.agregarLimitrofes(mendoza,rioNegro);
+		rioNegro.agregarLimitrofes(buenosAires,chubut,laPampa, neuquen);
+		salta.agregarLimitrofes(catamarca,chaco,formosa,jujuy,santiagoDelEstero,tucuman);
+		sanJuan.agregarLimitrofes(laRioja,mendoza,sanLuis);
+		sanLuis.agregarLimitrofes(cordoba,laPampa,laRioja,mendoza,sanJuan);
+		santaCruz.agregarLimitrofes(chubut, tierraDelFuego);
+		santaFe.agregarLimitrofes(buenosAires,chaco,cordoba,corrientes,entreRios,santiagoDelEstero);
+		santiagoDelEstero.agregarLimitrofes(catamarca,chaco,cordoba,salta,santaFe,tucuman);
+		tierraDelFuego.agregarLimitrofes(santaCruz);
+		tucuman.agregarLimitrofes(catamarca,salta,santiagoDelEstero);
+	}
 
 }

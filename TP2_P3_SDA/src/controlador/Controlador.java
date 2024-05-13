@@ -1,208 +1,147 @@
 package controlador;
 
 import vista.Main;
-import logica.Arista;
-import logica.CoordenadasCapitalesArgentina;
-import logica.CoordenadasCapitalesArgentina.Coordenada;
 import logica.Provincia;
 import logica.ProvinciasArgentinas;
-
+import grafosLogica.*;
+import java.awt.Color;
+import java.util.*;
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
 import org.openstreetmap.gui.jmapviewer.MapMarkerDot;
 import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-
 public class Controlador {
     private Main vista;
-    private CoordenadasCapitalesArgentina listaDeProvincias;
-    private ArrayList<Arista> ListaDeEnlacesEntreProvincias;
-    
-    private int countLlamadosADibujarEnlaces = 0;
-    
+    private Grafo<Provincia> grafo;
+    private Set<Provincia> provincias;
+    private Set<Arista<Provincia>> aristasG;
+    private TreeSet<Arista<Provincia>> aristasAGM;
 
-    public Controlador(Main vista, CoordenadasCapitalesArgentina modelo) {
+    public Controlador(Main vista, boolean usarProvArg) {
         this.vista = vista;
-        this.listaDeProvincias = modelo;
-        
-        this.ListaDeEnlacesEntreProvincias = new ArrayList<Arista>();
+        aristasG = new HashSet<>();
+        grafo = new Grafo<>();
+        provincias = new HashSet<>();
+        if (usarProvArg) {
+        	grafo = ProvinciasArgentinas.grafoProvinciasArgentina(this);
+        	mostrarMapaConGrafo();
+        }
+    }
+
+    private void mostrarMapaConGrafo(Set<Arista<Provincia>> aristas) {
+    	limpiarMapa();
+    	for (Provincia p: provincias)
+    		mostrarPunto(vista.getMapViewer(),p.coordenadas(), p.toString(), Color.YELLOW);
+    	for (Arista<Provincia> ar: aristas) {
+    		graficarArista(vista.getMapViewer(), ar);
+    	}
     }
 
     public void mostrarMapaConGrafo() {
-        // Obtener las coordenadas de las capitales de Argentina
-        Map<String, CoordenadasCapitalesArgentina.Coordenada> coordenadasMap = listaDeProvincias.getCapitales();
-
-        // Agregar los puntos al mapa
-        for (Map.Entry<String, CoordenadasCapitalesArgentina.Coordenada> entry : coordenadasMap.entrySet()) {
-            CoordenadasCapitalesArgentina.Coordenada coord = entry.getValue();
-            vista.getMapViewer().addMapMarker(new MapMarkerDot(coord.getLatitud(), coord.getLongitud()));
-        }
-        
-        agregarEnlacesDeProvincias();
-        dibujarEnlaces(vista.getMapViewer(),ListaDeEnlacesEntreProvincias);
-        
-
-        // Establecer el color de los marcadores en rojo
-        vista.getMapViewer().setMapMarkerVisible(true);
-        
-        retornarStringListaDeEnlaces();
+    	mostrarMapaConGrafo(aristasG);
     }
-    
-    public void dibujarEnlaces(JMapViewer mapa , ArrayList<Arista> ListaDeEnlacesEntreProvincias) {
 
-    	System.out.println(ListaDeEnlacesEntreProvincias);
-    	if (ListaDeEnlacesEntreProvincias.size() > 0) {
-    		System.out.println("Entre a dibujar enlaces pero el tamaño de ListaDeEnalaces es: " + ListaDeEnlacesEntreProvincias.size());
-    		
-    		for (int i = 0; i < ListaDeEnlacesEntreProvincias.size(); i++) {
-    			countLlamadosADibujarEnlaces++;
-    			System.out.println("cantidad de llamadooooos: " + countLlamadosADibujarEnlaces);
-    			Coordinate coordenadaOrigen = ListaDeEnlacesEntreProvincias.get(i).getOrigen();
-    			Coordinate coordenadaDestino = ListaDeEnlacesEntreProvincias.get(i).getDestino();
-    			System.out.println("Entrereee al foooor");
-    			
-    			String pesoEnTexto = ListaDeEnlacesEntreProvincias.get(i).toStringPeso();
-
-    	        vista.graficarEnlaces(coordenadaOrigen, coordenadaDestino,pesoEnTexto);
-    	        
-			}
+    // true si se pudo calcular agm, false si no
+    public boolean dibujarAGM() {
+    	try {
+    		aristasAGM = grafo.aristasDelAGM();
+    		limpiarMapa();
+    		mostrarMapaConGrafo(aristasAGM);
+    		return true;
+    	} catch (GrafoNoConexoException e) {
+    		vista.mostrarAlerta("El grafo aún no es conexo, añada más aristas");
+    	} catch (NoSuchElementException e) {
+    		vista.mostrarAlerta("¡Aún no hay vértices!");
     	}
-    			
+    	return false;
+    }
+
+    private void limpiarPuntos() {
+    	vista.getMapViewer().removeAllMapMarkers();
     }
     
-    
-    public void agregarEnlacesDeProvincias() {
+    private void limpiarAristas() {
+    	vista.getMapViewer().removeAllMapPolygons();
+    }
 
-    	Provincia[] provincias = ProvinciasArgentinas.provinciasDeArgentina();
-    	int cantProvincias = provincias.length;
-    	boolean[][] relacionLimitrofe = ProvinciasArgentinas.relacionDeProvinciasLimitrofes;
+    public void limpiarMapa() {
+    	limpiarPuntos();
+    	limpiarAristas();
+    }
 
-    	for (int i = 0; i < cantProvincias; i++) {
-    		Provincia p1 = provincias[i];
-    		
-    		for (int j = i + 1; j < cantProvincias; j++) {
-    			Provincia p2 = provincias[j];
-    			boolean provinciasLimitrofes = relacionLimitrofe[i][j];
-    			System.out.println(p1 + " limitrofe con "+p2+"? " + provinciasLimitrofes);
-    			if (provinciasLimitrofes) {			
-    		    	
-    				//Agrego Arista Origen-->Destino
-    		    	Arista NuevaArista = new Arista(p1.coordenadas(),p2.coordenadas()); 
-    		    	//Agergo Arista Destino-->Origen
-    		    	Arista NuevaAristaComplementaria = new Arista(p2.coordenadas(),p1.coordenadas()); 
-    		    	
-    		    	ListaDeEnlacesEntreProvincias.add(NuevaArista);
-    		    	ListaDeEnlacesEntreProvincias.add(NuevaAristaComplementaria);
-    	
-    			}
+    public void quitarAristasDelAGM(int n) {
+    	int cantRegiones = n - 1;
+    	if (cantRegiones < 0) {
+    		vista.mostrarAlerta("No puede ingresar un valor negativo.");
+    		return;
+    	}
+    	if (cantRegiones >= grafo.tamanio()) {
+    		vista.mostrarAlerta("Por favor, indique una cantidad menor.");
+    		return;
+    	}
+    	for (int i = 0; i < cantRegiones; i++)
+    		aristasAGM.pollLast();
+
+    	limpiarMapa();
+    	mostrarMapaConGrafo(aristasAGM);
+    }
+
+
+    private void graficarArista(JMapViewer map, Arista<Provincia> ar) {
+
+    	Coordinate c1 = ar.obtenerVerticeInicio().coordenadas();
+    	Coordinate c2 = ar.obtenerVerticeDestino().coordenadas();
+
+    	mostrarPunto(map,c1,ar.obtenerVerticeInicio().toString(), Color.YELLOW);
+    	mostrarPunto(map,c2,ar.obtenerVerticeDestino().toString(), Color.YELLOW);
+
+    	dibujarLineaEntreCoordenadas(map, c1,c2);
+    	dibujarPesoEnElMedio(map,c1,c2,ar.obtenerPeso());
+    }
+
+    private void dibujarLineaEntreCoordenadas(JMapViewer map, Coordinate c1, Coordinate c2) {
+    	map.addMapPolygon(new MapPolygonImpl(c1,c2,c1));
+    }
+
+    private void dibujarPesoEnElMedio(JMapViewer map, Coordinate c1, Coordinate c2, double peso) {
+    	Coordinate coordPeso;
+    	double x = (c1.getLat() + c2.getLat()) / 2;
+    	double y = (c1.getLon() + c2.getLon()) / 2;
+    	coordPeso = new Coordinate(x, y);
+    	mostrarPunto(map, coordPeso, String.valueOf((int) peso), Color.RED);
+    }
+
+    public void nuevaProvincia(Provincia p) {
+    	grafo.agregarVertice(p);
+    	provincias.add(p);
+    	mostrarPunto(vista.getMapViewer(), p.coordenadas(), p.toString(), Color.YELLOW);
+    }
+
+    private void mostrarPunto(JMapViewer map, Coordinate c, String text, Color color) {
+    	MapMarkerDot punto = new MapMarkerDot(c);
+    	if (text != null) punto.setName(text);
+    	punto.setBackColor(color);
+    	map.addMapMarker(punto);
+    }
+
+    public void nuevaArista(Provincia p1, Provincia p2, double peso) {
+    	try {
+    		grafo.agregarAristaEntreVertices(p1, p2, peso);
+    		Arista<Provincia> ar = new Arista<>(p1,p2,peso);
+    		if (agregarArista(ar)) {
+    			graficarArista(vista.getMapViewer(), ar);
+    		} else {
+    			// No enconté forma de poder hacerlo
+    			vista.mostrarAlerta("¡No puede cambiar el peso de la arista!");
     		}
-    		
+    	} catch (IllegalArgumentException e) {
+    		vista.mostrarAlerta("¡No puede añadir una relación entre un mismo vértice!");
     	}
     }
-    	
-    	
-    	
-    	
-    	
-    	
     
-    
-    
-    
-    private void pintarLineaEntreProvincias(JMapViewer mapa, Provincia p1, Provincia p2) {
-    	mapa.addMapPolygon(new MapPolygonImpl(p1.coordenadas(), p2.coordenadas(),p1.coordenadas()));
-    }
-    
-    public String retornarStringListaDeEnlaces() {
-    	
-    	String listaFinal = "";
-    	
-    	for (int i = 0; i < ListaDeEnlacesEntreProvincias.size(); i++) {
-    		listaFinal = listaFinal + " ||| " + ListaDeEnlacesEntreProvincias.get(i).toString();
-		}
-    	
-    	return listaFinal;
-    	
-    	
-    }
-    
-    public static Coordinate encontrarCoordenadaIntermedia(Coordinate coordenada1, Coordinate coordenada2) {
-        double latitudIntermedia = (coordenada1.getLat() + coordenada2.getLat()) / 2.0;
-        double longitudIntermedia = (coordenada1.getLon() + coordenada2.getLon()) / 2.0;
-        return new Coordinate(latitudIntermedia, longitudIntermedia);
-    }
-    
-    public CoordenadasCapitalesArgentina getListaDePronvincias() {
-    	return listaDeProvincias;
+    public boolean agregarArista(Arista<Provincia> ar) {
+    	return aristasG.add(ar);
     }
 
-	public void agregarPesoEnRelacion(String provinciaComboBox1, String provinciaComboBox2, String valorPesoIngresado) {
-		
-		Coordenada cordenadaProvincia1 = listaDeProvincias.getCapitales().get(provinciaComboBox1);
-		Coordenada cordenadaProvincia2 = listaDeProvincias.getCapitales().get(provinciaComboBox2);
-		
-		
-		double latitudCordenadaProvincia1 = cordenadaProvincia1.getLatitud();
-		double longitudCordenadaProvincia1 = cordenadaProvincia1.getLongitud();
-		
-		double latitudCordenadaProvincia2 = cordenadaProvincia2.getLatitud();
-		double longitudCordenadaProvincia2 = cordenadaProvincia2.getLongitud();
-		
-		
-		for (int i = 0; i < ListaDeEnlacesEntreProvincias.size(); i++) {
-			System.out.println("ENTRE A LA LISTA DE ENLACES ENTRE PROVINCIAS");
-			double latitudCoordinateOrigenListaDeEnlacesPronvincia1 = ListaDeEnlacesEntreProvincias.get(i).getOrigen().getLat(); 		
-			double longitudCoordinateOrigenListaDeEnlacesPronvincia1 = ListaDeEnlacesEntreProvincias.get(i).getOrigen().getLon();
-			
-			
-			if (latitudCoordinateOrigenListaDeEnlacesPronvincia1 == latitudCordenadaProvincia1 && longitudCordenadaProvincia1 == longitudCoordinateOrigenListaDeEnlacesPronvincia1) {
-				//comprobando la coordenada de la segunda pronvincia
-				double latitudCoordinateDestinoListaDeEnlacesPronvincia1 = ListaDeEnlacesEntreProvincias.get(i).getDestino().getLat(); 		
-				double longitudCoordinateDestinoListaDeEnlacesPronvincia1 = ListaDeEnlacesEntreProvincias.get(i).getDestino().getLon();
-				
-				System.out.println("Comprobe que tengo una coordenada origen igual con la provincia: " + provinciaComboBox1 + 
-				" con latitud: " + latitudCoordinateDestinoListaDeEnlacesPronvincia1 +  
-				" y longitud: " + longitudCoordinateDestinoListaDeEnlacesPronvincia1);
-
-				System.out.println("estoy validando: " + provinciaComboBox2);
-				
-				System.out.println("estoy comparando estas latitudes: " + latitudCoordinateDestinoListaDeEnlacesPronvincia1 + " y: " + latitudCordenadaProvincia2);
-				
-				System.out.println("estoy comparando estas longitudes: " + longitudCoordinateDestinoListaDeEnlacesPronvincia1 + " y: " + longitudCordenadaProvincia2);
-				
-				System.out.println("######################");
-				
-				if (latitudCoordinateDestinoListaDeEnlacesPronvincia1 == latitudCordenadaProvincia2 && longitudCoordinateDestinoListaDeEnlacesPronvincia1 == longitudCordenadaProvincia2) {
-					//AHORA COMO LA COORDENADA EXISTE PUEDO AGREGAR PESO
-					System.out.println("Comprobe que tengo una coordenada destino igual");
-					int PesoEnNumero = Integer.valueOf(valorPesoIngresado);
-					
-					agregarPesoEnRelacionEntrePronvincias(ListaDeEnlacesEntreProvincias.get(i),PesoEnNumero);
-					
-				}else {
-					System.out.println("no es una provincia limitrofe");
-				}
-				
-				
-				
-			}
-			
-			
-		}
-		
-	}
-
-	private void agregarPesoEnRelacionEntrePronvincias(Arista arista, int pesoEnNumero) {
-		
-		arista.actualizarPeso(pesoEnNumero);
-		System.out.println("Entre a intentar agergar el peso en el mapa");
-		dibujarEnlaces(vista.getMapViewer(),ListaDeEnlacesEntreProvincias);
-		
-	}
-
-    
-    
 }
