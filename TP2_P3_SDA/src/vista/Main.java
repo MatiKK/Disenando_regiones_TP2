@@ -72,7 +72,6 @@ public class Main extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				if (SwingUtilities.isRightMouseButton(e) && e.getClickCount() == 2) {
 					String nombreProvincia;
-//					nombreProvincia = "test";
 					nombreProvincia = JOptionPane.showInputDialog("Ingrese nombre de provincia:");
 					if (nombreProvincia == null)
 						return;

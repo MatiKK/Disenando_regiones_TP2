@@ -23,12 +23,10 @@ public class Controlador {
     }
 
     private void mostrarMapaConGrafo(Set<Arista<Provincia>> aristas) {
-    	System.out.println("------------------------------------------");
     	limpiarMapa();
     	for (Provincia p: provincias)
     		mostrarPunto(vista.getMapViewer(),p.coordenadas(), p.toString(), Color.YELLOW);
     	for (Arista<Provincia> ar: aristas) {
-    		System.out.println(ar);
     		graficarArista(vista.getMapViewer(), ar);
     	}
     }
@@ -110,8 +108,7 @@ public class Controlador {
     public void agregarNuevaProvincia(Provincia p) {
     	grafo.agregarVertice(p);
     	provincias.add(p);
-//    	mostrarPunto(vista.getMapViewer(), p.coordenadas(), p.toString(), Color.YELLOW);
-    	mostrarPunto(vista.getMapViewer(), p.coordenadas(), "", Color.YELLOW);
+    	mostrarPunto(vista.getMapViewer(), p.coordenadas(), p.toString(), Color.YELLOW);
     }
 
     private void mostrarPunto(JMapViewer map, Coordinate c, String text, Color color) {
