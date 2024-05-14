@@ -44,8 +44,6 @@ public class Grafo<T extends Comparable<T>>{
 			for (Arista<T> a: aristasDelVertice) {
 				if (a.equals(arista)) {
 					continue loop;
-//					System.out.println(a + " " + arista);
-//					throw new IllegalArgumentException("Arista repetida");
 				}
 			}
 

@@ -10,8 +10,6 @@ public class TesteoGrafos {
 		boolean esConexo = g.esConexo();
 		System.out.println("g es conexo? " + esConexo);
 		g.printData();
-//		System.out.println(g.existeAristaEntreVertices('A', 'H'));
-//		System.out.println(g.pesoDeLaAristaEntreVertices('A', 'H'));
 		System.out.println();
 
 		if (esConexo) {
@@ -20,10 +18,6 @@ public class TesteoGrafos {
 			Set<?> aristas = new AGM<>(g).aristasDelAGM();
 			for (Object arista: aristas)
 				System.out.println(arista);
-
-//			Grafo<?> g_AGM = g.obtenerAGM();
-//			System.out.println("AGM de g:");
-//			g_AGM.printData();
 
 		}
 
