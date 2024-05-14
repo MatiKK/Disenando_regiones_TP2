@@ -61,7 +61,7 @@ public class Main extends JFrame {
 
 		JPanel buttonPanel = new JPanel();
 		JPanel mapPanel = new JPanel(new BorderLayout());
-		showGraphButton = new JButton("Ver Mapa con Grafo");
+		showGraphButton = new JButton("Grafo original");
 		exitButton = new JButton("Salir");
 
 		// Mapa
@@ -149,7 +149,7 @@ public class Main extends JFrame {
 			}
 		});
 
-		JButton btnGenerarAGM = new JButton("Generar AGM");
+		JButton btnGenerarAGM = new JButton("AGM");
 		btnGenerarAGM.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (controlador.dibujarAGM()) {
@@ -167,8 +167,8 @@ public class Main extends JFrame {
 
 		crearFrameAgregarRelacion();
 
-		JButton cargarDatosArgentina = new JButton("Cargar provincias de Argentina");
-		JButton cargarLimitrofesAleatoriosArgentina = new JButton("Cargar relaciones aleatorias en Argentina");
+		JButton cargarDatosArgentina = new JButton("Provincias Argentinas");
+		JButton cargarLimitrofesAleatoriosArgentina = new JButton("Relaciones aleatorias Provincias Argentinas");
 		buttonPanel.add(cargarLimitrofesAleatoriosArgentina);
 		buttonPanel.add(cargarDatosArgentina);
 		cargarLimitrofesAleatoriosArgentina.setVisible(false);
@@ -178,7 +178,7 @@ public class Main extends JFrame {
 				agregarProvinciasArgentinas();
 				cargarLimitrofesAleatoriosArgentina.setVisible(true);
 				buttonPanel.remove(cargarDatosArgentina);
-				repaint();
+				buttonPanel.repaint();
 			}
 		});
 
@@ -186,7 +186,7 @@ public class Main extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				agregarPesosAleatorios();
 				buttonPanel.remove(cargarLimitrofesAleatoriosArgentina);
-				repaint();
+				buttonPanel.repaint();
 			}
 		});
 

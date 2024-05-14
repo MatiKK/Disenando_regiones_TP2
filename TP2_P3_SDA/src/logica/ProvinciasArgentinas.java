@@ -1,10 +1,6 @@
 package logica;
 
-import java.util.*;
 import org.openstreetmap.gui.jmapviewer.Coordinate;
-import grafosLogica.Grafo;
-import grafosLogica.Arista;
-
 
 public class ProvinciasArgentinas {
 	private static final Provincia buenosAires = new Provincia("Buenos Aires", new Coordinate(-36.5, -60.5));
@@ -33,8 +29,11 @@ public class ProvinciasArgentinas {
 	private static final Provincia tierraDelFuego = new Provincia("Tierra del Fuego", new Coordinate(-54.25, -67.7));
 	private static final Provincia tucuman = new Provincia("Tucumán", new Coordinate(-26.9, -65.4));
 
+	private static boolean seAgregaronLimitrofes = false;
+
 	public static Provincia[] provinciasDeArgentina() {
-		agregarLimitrofes();
+		if (!seAgregaronLimitrofes)
+			agregarLimitrofes();
 		return new Provincia[] {
 				buenosAires, CABA, catamarca, chaco, chubut, cordoba, corrientes, entreRios,
 				formosa, jujuy, laRioja, laPampa, mendoza, misiones, neuquen, rioNegro, salta,
@@ -67,6 +66,7 @@ public class ProvinciasArgentinas {
 		santiagoDelEstero.agregarLimitrofes(catamarca,chaco,cordoba,salta,santaFe,tucuman);
 		tierraDelFuego.agregarLimitrofes(santaCruz);
 		tucuman.agregarLimitrofes(catamarca,salta,santiagoDelEstero);
+		seAgregaronLimitrofes = true;
 	}
 
 }
